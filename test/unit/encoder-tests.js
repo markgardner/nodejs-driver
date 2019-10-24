@@ -505,6 +505,18 @@ describe('encoder', function () {
         decoded = encoder.decode(encoded, {code: dataTypes.set, info: {code: dataTypes.int}});
         assert.strictEqual(decoded.toString(), m.toString());
       });
+      it(util.format('should encode/decode empty lists within lists for protocol v%d', version), function () {
+        const value = [[], ['123'], [], ['456']];
+        const encoded = encoder.encode(value, 'list<list<text>>');
+        const decoded = encoder.decode(encoded, {code: dataTypes.list, info: {code: dataTypes.list, info: {code: dataTypes.text}}});
+        assert.strictEqual(util.inspect(decoded), util.inspect(value));
+      });
+      it(util.format('should encode/decode empty lists within maps for protocol v%d', version), function () {
+        const value = {'test':[],'test2': ['123']};
+        const encoded = encoder.encode(value, 'map<text,list<text>>');
+        const decoded = encoder.decode(encoded, {code: dataTypes.map, info: [{code: dataTypes.text}, {code: dataTypes.list, info: {code: dataTypes.text}}]});
+        assert.strictEqual(util.inspect(decoded), util.inspect(value));
+      });
     });
     it('should encode/decode udts', function () {
       const encoder = new Encoder(3, {});
